@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -16,24 +16,6 @@ model User {
   name      String   @unique
   password  String   
   admin     Int      @default(0)
-}
-
-model Brains {
-  id        String  @map("_id") @id @default(cuid())
-  name      String  @unique
-  data      String
-}
-
-model Bots {
-  id        String  @map("_id") @id @default(cuid())
-  name      String  @unique
-  brain     String
-  serviceAccess ServiceAccess 
-}
-
-type ServiceAccess {
-  discord   Boolean
-  mastodon  Boolean
-  slack     Boolean
-  socket    Boolean
+  lastLogin DateTime 
+  lastIp    String
 }

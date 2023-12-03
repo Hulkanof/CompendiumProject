@@ -95,7 +95,9 @@ export async function createUser(req: Request, res: Response) {
 			data: {
 				email: req.body.email,
 				name: req.body.username,
-				password: passhash
+				password: passhash,
+				lastLogin: new Date(),
+				lastIp: 'test',
 			},
 			select: {
 				id: true,

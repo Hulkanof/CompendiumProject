@@ -4,7 +4,6 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Header from "./components/Header"
 import Home from "./pages/Home"
-import SuperAdmin from "./pages/SuperAdmin"
 import { useEffect, useState } from "react"
 import useToken from "./hooks/useToken"
 import WebSocketInterface from "./pages/WebSocketInterface"
@@ -13,9 +12,6 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { SideBarMenuItem } from "./types/SideBarMenu"
 import { FcManager, FcSupport, FcVoicePresentation } from "react-icons/fc"
 import SideBarMenu from "./components/SideBarMenu"
-import Bot from "./pages/Bots"
-import Admin from "./pages/Admin"
-import EditBot from "./pages/EditBot"
 
 function App() {
 	const [user, setUser] = useState<User>({
@@ -98,10 +94,6 @@ function App() {
 					<Route path="/register" element={<Register {...props} />} />
 					<Route path="/web-client/:socketPort" element={<WebSocketInterface {...props} />} />
 					<Route path="*" element={<Page404 />} />
-					<Route path="/superadmin" element={<SuperAdmin {...props} />} />
-					<Route path="/bot" element={<Bot {...props} />} />
-					<Route path="/admin" element={<Admin {...props} />} />
-					<Route path="/editbot/:Id" element={<EditBot {...props} />} />
 				</Routes>
 			</div>
 		</>
