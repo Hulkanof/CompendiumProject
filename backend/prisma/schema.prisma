@@ -18,4 +18,5 @@ model User {
   admin     Int      @default(0)
   lastLogin DateTime 
   lastIp    String
+  resetToken String?  
 }

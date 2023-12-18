@@ -1,8 +1,9 @@
 import { Request, Response } from "express"
-import { generateAccessToken, verifyAccessToken } from "../utils/token"
+import { generateAccessToken, verifyAccessToken, generateResetToken } from "../utils/token"
 import { createHash } from "crypto"
 import { prisma } from "../main"
 import { JsonWebTokenError } from "jsonwebtoken"
+import { sendResetEmail } from "../controller/mailService"
 require("dotenv").config()
 
 /**
@@ -96,8 +97,8 @@ export async function createUser(req: Request, res: Response) {
 				email: req.body.email,
 				name: req.body.username,
 				password: passhash,
-				lastLogin: new Date(),
-				lastIp: 'test',
+				lastLogin: new Date() ,
+				lastIp: req.socket.remoteAddress || "",
 			},
 			select: {
 				id: true,
@@ -156,6 +157,86 @@ export async function updateAdmin(req: Request, res: Response) {
 			}
 		})
 		return res.status(200).send({ type: "success", data: newUser })
+	} catch (error: unknown) {
+		console.error(error)
+		return res.status(500).send({ type: "error", error: "Internal error!" })
+	}
+}
+
+/**
+ * Route handler that asks for password reset: /api/v1/user/reset
+ * @param req Request must contain email field
+ */
+export async function passwordReset(req: Request, res: Response) {
+	if (!req.body) return res.status(400).send({ type: "error", error: "No request body" })
+	if (!req.body.email) return res.status(400).send({ type: "error", error: "Missing fields" })
+
+	try {
+		const user = await prisma.user.findUnique({
+			where: {
+				email: req.body.email
+			}
+		})
+
+		if (!user) return res.status(404).send({ type: "error", error: "User does not exist!" })
+
+
+
+		let resetToken = generateResetToken()
+
+		while (await prisma.user.findFirst({ where: { resetToken: resetToken } })) {
+			resetToken = generateResetToken()
+		}
+
+		await prisma.user.update({
+			where: {
+				email: req.body.email
+			},
+			data: {
+				resetToken: resetToken
+			}
+		})
+
+		sendResetEmail(req.body.email, resetToken)
+
+		return res.status(200).send({ type: "success", data: "Email sent" })
+	} catch (error: unknown) {
+		console.error(error)
+		return res.status(500).send({ type: "error", error: "Internal error!" })
+	}
+}
+
+/**
+ * Route handler that sets new password: /api/v1/user/setNewPassword
+ * @param req Request must contain password field
+ */
+export async function setNewPassword(req: Request, res: Response) {
+	if (!req.body) return res.status(400).send({ type: "error", error: "No request body" })
+	if (!req.body.password) return res.status(400).send({ type: "error", error: "Missing fields" })
+	if (!req.body.token) return res.status(400).send({ type: "error", error: "Missing fields" })
+
+
+	try {
+		const user = await prisma.user.findFirst({
+			where: {
+				resetToken: req.body.token
+			}
+		})
+
+		if (!user) return res.status(404).send({ type: "error", error: "User does not exist!" })
+
+		const passhash = createHash("sha256").update(req.body.password).digest("hex")
+
+		await prisma.user.update({
+			where: {
+				id : user.id
+			},
+			data: {
+				password: passhash
+			}
+		})
+
+		return res.status(200).send({ type: "success", data: "Password changed" })
 	} catch (error: unknown) {
 		console.error(error)
 		return res.status(500).send({ type: "error", error: "Internal error!" })

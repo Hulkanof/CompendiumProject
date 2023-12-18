@@ -50,6 +50,9 @@ const Login: React.FC<defaultPageProps> = ({ setUser }) => {
 				<button className="login-button" onClick={handleSubmit}>
 					Login
 				</button>
+				<button className="forgot-password-button" onClick={() => navigate("/forgot-password")}>
+					Forgot password
+				</button>
 				{info ? (
 					<div
 						className={`register-info`}

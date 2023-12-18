@@ -7,7 +7,7 @@ import { environment } from "../main"
  * @returns A signed JWT token
  */
 export function generateAccessToken(user: User) {
-	return jwt.sign(user, environment.JWT_SECRET, { expiresIn: "32d" })
+	return jwt.sign(user, environment.JWT_SECRET, { expiresIn: "1d" })
 }
 
 /**
@@ -17,4 +17,13 @@ export function generateAccessToken(user: User) {
  */
 export function verifyAccessToken(token: string): User {
 	return jwt.verify(token, environment.JWT_SECRET) as User
+}
+
+/**
+ * Creates a random 8 character string for password reset
+ * @param user The content of the token
+ * @returns A random 8 character string
+ */
+export function generateResetToken() {
+	return Math.random().toString(36).slice(-8)
 }

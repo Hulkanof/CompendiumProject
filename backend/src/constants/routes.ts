@@ -1,8 +1,9 @@
-import { createUser, loginUser, getUser, getUsers, updateAdmin } from "../api/user"
+import { createUser, loginUser, getUser, getUsers, updateAdmin, passwordReset, setNewPassword } from "../api/user"
 import { verifyToken } from "../middlewares/verifyToken"
 import type { Route } from "../types/express"
 import { verifyTokenAdmin } from "../middlewares/verifyTokenAdmin"
 import multer from "multer"
+import { questionNewPassword } from "readline-sync"
 
 /**
  * Express routes
@@ -40,5 +41,17 @@ export const routes: Route[] = [
 		path: "/api/v1/user/:id/admin",
 		middlewares: [verifyTokenAdmin],
 		handler: updateAdmin
+	},
+	{
+		// Ask for password reset
+		methods: ["post"],
+		path: "/api/v1/user/reset",
+		handler: passwordReset
+	},
+	{
+		// Set new password
+		methods: ["post"],
+		path: "/api/v1/user/setNewPassword",
+		handler: setNewPassword
 	}
 ]

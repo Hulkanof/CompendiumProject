@@ -12,6 +12,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { SideBarMenuItem } from "./types/SideBarMenu"
 import { FcManager, FcSupport, FcVoicePresentation } from "react-icons/fc"
 import SideBarMenu from "./components/SideBarMenu"
+import ForgotPassword from "./pages/ForgotPassword"
 
 function App() {
 	const [user, setUser] = useState<User>({
@@ -94,6 +95,7 @@ function App() {
 					<Route path="/register" element={<Register {...props} />} />
 					<Route path="/web-client/:socketPort" element={<WebSocketInterface {...props} />} />
 					<Route path="*" element={<Page404 />} />
+					<Route path="/forgot-password" element={<ForgotPassword {...props} />} />
 				</Routes>
 			</div>
 		</>
