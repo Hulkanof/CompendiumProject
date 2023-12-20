@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { generateAccessToken, verifyAccessToken, generateResetToken } from "../utils/token"
+import { generateAccessToken, verifyAccessToken, generateResetToken, generateAccessResetToken } from "../utils/token"
 import { createHash } from "crypto"
 import { prisma } from "../main"
 import { JsonWebTokenError } from "jsonwebtoken"
@@ -223,7 +223,7 @@ export async function setNewPassword(req: Request, res: Response) {
 			}
 		})
 
-		if (!user) return res.status(404).send({ type: "error", error: "User does not exist!" })
+		if (!user) return res.status(404).send({ type: "error", error: "Reset token is not valid" })
 
 		const passhash = createHash("sha256").update(req.body.password).digest("hex")
 
@@ -237,6 +237,28 @@ export async function setNewPassword(req: Request, res: Response) {
 		})
 
 		return res.status(200).send({ type: "success", data: "Password changed" })
+	} catch (error: unknown) {
+		console.error(error)
+		return res.status(500).send({ type: "error", error: "Internal error!" })
+	}
+}
+
+export async function checkResetToken(req: Request, res: Response) {
+	if (!req.body) return res.status(400).send({ type: "error", error: "No request body" })
+	if (!req.body.token) return res.status(400).send({ type: "error", error: "Missing fields" })
+
+	try {
+		const user = await prisma.user.findFirst({
+			where: {
+				resetToken: req.body.token
+			}
+		})
+
+		if (!user) return res.status(404).send({ type: "error", error: "Token is not valid" })
+
+		const newtoken = generateAccessResetToken(req.body.token)
+
+		return res.status(200).send({ type: "success", data: "Token valid", token: newtoken})
 	} catch (error: unknown) {
 		console.error(error)
 		return res.status(500).send({ type: "error", error: "Internal error!" })

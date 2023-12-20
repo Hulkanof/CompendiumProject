@@ -27,3 +27,7 @@ export function verifyAccessToken(token: string): User {
 export function generateResetToken() {
 	return Math.random().toString(36).slice(-8)
 }
+
+export function generateAccessResetToken(resetToken: string) {
+	return jwt.sign(resetToken, environment.JWT_SECRET, { expiresIn: "1h" })
+}

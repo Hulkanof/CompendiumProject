@@ -4,6 +4,7 @@ import type { Route } from "../types/express"
 import { verifyTokenAdmin } from "../middlewares/verifyTokenAdmin"
 import multer from "multer"
 import { questionNewPassword } from "readline-sync"
+import { checkResetToken } from "../api/user"
 
 /**
  * Express routes
@@ -53,5 +54,11 @@ export const routes: Route[] = [
 		methods: ["post"],
 		path: "/api/v1/user/setNewPassword",
 		handler: setNewPassword
+	},
+	{
+		// Check if reset token is valid
+		methods: ["post"],
+		path: "/api/v1/user/checkResetToken",
+		handler: checkResetToken
 	}
 ]
