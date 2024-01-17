@@ -5,6 +5,7 @@ import { verifyTokenAdmin } from "../middlewares/verifyTokenAdmin"
 import multer from "multer"
 import { questionNewPassword } from "readline-sync"
 import { checkResetToken } from "../api/user"
+import { uploadData } from "../api/data"
 
 /**
  * Express routes
@@ -60,5 +61,14 @@ export const routes: Route[] = [
 		methods: ["post"],
 		path: "/api/v1/user/checkResetToken",
 		handler: checkResetToken
+	},
+	// ------------------ data Routes ------------------
+	{
+		// Upload data
+		methods: ["post"],
+		path: "/api/v1/data",
+		middlewares: [multer({limits:{fileSize: 10000000, files: 1} }).single("file")],
+		handler: uploadData
 	}
+
 ]

@@ -12,6 +12,8 @@ const ResetPassword: React.FC<defaultPageProps> = () => {
     }>()
     const navigate = useNavigate()
     const { setToken } = useToken()
+    const [password, setPassword] = useState("")
+    const [password2, setPassword2] = useState("")
 
     async function handleSubmit() {
         if (resetToken === "")
@@ -20,11 +22,24 @@ const ResetPassword: React.FC<defaultPageProps> = () => {
                 type: "warning"
             })
 
+        if (password === "" || password2 === "")
+            return setInfo({
+                message: "Please fill in all fields",
+                type: "warning"
+            })
+
+        if (password !== password2)
+            return setInfo({
+                message: "Passwords do not match",
+                type: "warning"
+            })
+
         const res = await fetch("/api/v1/user/checkResetToken", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                resetToken
+                resetToken : resetToken,
+                password : password
             })
         })
 
@@ -42,8 +57,8 @@ const ResetPassword: React.FC<defaultPageProps> = () => {
             type: "success"
         })
         
-        setToken(data.data.token)
-        navigate("/reset-password/confirm")
+        
+        navigate("/login")
         
     }
 
@@ -53,6 +68,8 @@ const ResetPassword: React.FC<defaultPageProps> = () => {
                 <h1>Reset Password</h1>
                 <h2>Enter your reset token to reset your password.</h2>
                 <input className="reset-password-input" type="text" placeholder="Reset Token" onChange={e => setResetToken(e.target.value)} />
+                <input className="reset-password-input" type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+                <input className="reset-password-input" type="password" placeholder="Confirm Password" onChange={e => setPassword2(e.target.value)} />
                 <button className="reset-password-button" onClick={handleSubmit}>
                     Send
                 </button>

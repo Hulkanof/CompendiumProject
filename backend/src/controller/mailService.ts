@@ -1,22 +1,24 @@
-const nodemailer = require('nodemailer'); 
-const xoauth2 = require('xoauth2');
-require("dotenv").config()
+import nodemailer from "nodemailer" 
+import dotenv from "dotenv"
+import path from "path"
+dotenv.config({ path: path.join(process.cwd(), '.env') });
 import { MessageClient } from "cloudmailin"
+
+const transporter = nodemailer.createTransport({
+    port : 465,
+    host: process.env.SMTP_HOST || "",
+    auth: {
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD
+    },
+    from: process.env.EMAIL_FROM,
+    secure: true
+})
 
 export function sendEmail(to: string, subject: string, html: string) {
 
-    const transporter = nodemailer.createTransport({
-        port : 465,
-        host: "smtp.gmail.com",
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD
-        },
-        secure: true
-    })
-
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: process.env.EMAIL_FROM,
         to: to,
         subject: subject,
         html: html
@@ -33,20 +35,10 @@ export function sendEmail(to: string, subject: string, html: string) {
 
 export async function sendResetEmail(to: string, token: string) {
 
-    console.log(process.env.EMAIL_USER)
-
-    const transporter = nodemailer.createTransport({
-        port : 465,
-        host: "smtp.gmail.com",
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD
-        },
-        secure: true
-    })
+    console.log(process.env.EMAIL_FROM)
 
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: process.env.EMAIL_FROM,
         to: to,
         subject: "Password Reset",
         text: "test",

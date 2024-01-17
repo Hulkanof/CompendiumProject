@@ -4,6 +4,7 @@ import { createHash } from "crypto"
 import { prisma } from "../main"
 import { JsonWebTokenError } from "jsonwebtoken"
 import { sendResetEmail } from "../controller/mailService"
+import { log } from "console"
 require("dotenv").config()
 
 /**
@@ -217,13 +218,9 @@ export async function setNewPassword(req: Request, res: Response) {
 
 
 	try {
-		const user = await prisma.user.findFirst({
-			where: {
-				resetToken: req.body.token
-			}
-		})
+		const user = verifyAccessToken(req.body.token)
 
-		if (!user) return res.status(404).send({ type: "error", error: "Reset token is not valid" })
+		if (!user) return res.status(404).send({ type: "error", error: "Token is not valid" })
 
 		const passhash = createHash("sha256").update(req.body.password).digest("hex")
 
@@ -243,22 +240,37 @@ export async function setNewPassword(req: Request, res: Response) {
 	}
 }
 
+/*
+ * Route handler that checks if reset token is valid: /api/v1/user/checkResetToken
+ * @param req Request must contain token field
+ */
 export async function checkResetToken(req: Request, res: Response) {
 	if (!req.body) return res.status(400).send({ type: "error", error: "No request body" })
-	if (!req.body.token) return res.status(400).send({ type: "error", error: "Missing fields" })
+	if (!req.body.resetToken) return res.status(400).send({ type: "error", error: "Missing fields" })
 
 	try {
 		const user = await prisma.user.findFirst({
 			where: {
-				resetToken: req.body.token
+				resetToken: req.body.resetToken
 			}
 		})
 
 		if (!user) return res.status(404).send({ type: "error", error: "Token is not valid" })
 
-		const newtoken = generateAccessResetToken(req.body.token)
+		const passhash = createHash("sha256").update(req.body.password).digest("hex")
 
-		return res.status(200).send({ type: "success", data: "Token valid", token: newtoken})
+		await prisma.user.update({
+			where: {
+				id : user.id
+			},
+			data: {
+				password: passhash,
+				resetToken: null
+			}
+		})
+		
+
+		return res.status(200).send({ type: "success", data: "Password changed" })
 	} catch (error: unknown) {
 		console.error(error)
 		return res.status(500).send({ type: "error", error: "Internal error!" })

@@ -4,6 +4,7 @@ import { Server } from "http"
 import type { Express } from "express"
 import type { Route } from "../types/express"
 
+
 /**
  * Express Client
  */
@@ -39,8 +40,10 @@ export default class ExpressClient {
 	constructor(routes: Route[], port: number, options?: { start?: boolean; botName?: string }) {
 		this.port = port
 		this.app = express()
-		this.app.use(express.json())
 		this.app.use(cookieParser())
+		this.app.use(express.json( {limit: '50mb'}))
+		this.app.use(express.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000 }))
+
 
 		// Add routes from routes array
 		routes.forEach(route => {

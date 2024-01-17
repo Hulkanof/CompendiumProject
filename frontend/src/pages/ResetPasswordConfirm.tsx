@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/ResetPasswordConfirmed.css';
 import { useNavigate } from "react-router-dom"
+import useToken from "../hooks/useToken"
 
 const ResetPasswordConfirmed: React.FC<defaultPageProps> = () => {
     const [password, setPassword] = useState("")
@@ -10,6 +11,7 @@ const ResetPasswordConfirmed: React.FC<defaultPageProps> = () => {
         type: string
     }>()
     const navigate = useNavigate()
+    const {token} = useToken()
 
     async function handleSubmit() {
         if (password === "" || password2 === "")
@@ -28,7 +30,8 @@ const ResetPasswordConfirmed: React.FC<defaultPageProps> = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                password
+                token : token,
+                password : password
             })
         })
 

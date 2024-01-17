@@ -15,6 +15,8 @@ import SideBarMenu from "./components/SideBarMenu"
 import ForgotPassword from "./pages/ForgotPassword"
 import ResetPassword from "./pages/ResetPassword"
 import ResetPasswordConfirm from "./pages/ResetPasswordConfirm"
+import SuperAdmin from "./pages/SuperAdmin"
+import Admin from "./pages/Admin"
 
 function App() {
 	const [user, setUser] = useState<User>({
@@ -31,7 +33,7 @@ function App() {
 		if (isLoading) return
 		if (token === "") {
 			setUser({ id: "", name: "", email: "", admin: 0 })
-			if (location.pathname !== "/register") navigate("/login")
+			if (location.pathname !== "/register" && location.pathname !== "/reset-password" && location.pathname !== "/reset-password/confirm" ) navigate("/login")
 			return
 		}
 		if (user.id !== "") return
@@ -79,9 +81,9 @@ function App() {
 		},
 		{
 			id: "3",
-			label: "Bot panel",
+			label: "Database viewer",
 			icon: FcVoicePresentation,
-			url: "/bot",
+			url: "/database",
 			privilegeNeeded: 0
 		}
 	]
@@ -100,6 +102,8 @@ function App() {
 					<Route path="/forgot-password" element={<ForgotPassword {...props} />} />
 					<Route path="/reset-password" element={<ResetPassword {...props} />} />
 					<Route path="/reset-password/confirm" element={<ResetPasswordConfirm {...props} />} />
+					<Route path="/superadmin" element={<SuperAdmin {...props}/>} />
+					<Route path="/admin" element={<Admin {...props}/>} />
 				</Routes>
 			</div>
 		</>
